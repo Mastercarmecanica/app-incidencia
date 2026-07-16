@@ -232,6 +232,10 @@ function submitForm() {
     }
 
     let aiSummaryVal = document.getElementById('aiSummary').value.trim();
+    // Si el resultado de la IA es un error, lo ignoramos completamente
+    if (aiSummaryVal.startsWith('Error en IA:')) {
+        aiSummaryVal = '';
+    }
     let details = '';
     
     // Si la IA respondió algo y NO es devolución ni etiqueta deteriorada, lo guardamos.
