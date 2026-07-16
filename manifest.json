@@ -1,0 +1,16 @@
+{
+  "name": "App Incidencias",
+  "short_name": "Incidencias",
+  "description": "Gestión de incidencias logísticas",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#121212",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Incidencias App</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#121212">
+    <link rel="apple-touch-icon" href="icon.svg">
+</head>
+<body>
+
+    <header>
+        <h1>Incidencias</h1>
+        <button class="btn-report" onclick="generateEmail()">Finalizar Jornada</button>
+    </header>
+
+    <!-- El tablero ahora está vacío. app.js se encarga de rellenarlo leyendo la base de datos -->
+    <div class="container" id="incidenciasContainer">
+    </div>
+
+    <!-- The FAB opens the form now -->
+    <button class="fab" onclick="openForm()">+</button>
+
+    <!-- NEW FORM MODAL -->
+    <div class="modal" id="formModal">
+        <div class="modal-header">
+            <button class="back-btn" onclick="closeForm()">←</button>
+            <h2>Nueva Incidencia</h2>
+        </div>
+        <div class="form-body">
+            
+            <!-- Paso 1: Cliente -->
+            <div class="form-group">
+                <label class="form-label">1. Seleccionar Cliente</label>
+                <div class="chip-group">
+                    <div class="chip" onclick="selectChip(this)">MegaLux</div>
+                    <div class="chip" onclick="selectChip(this)">Pharma</div>
+                    <div class="chip" onclick="selectChip(this)">Abbott</div>
+                    <div class="chip" onclick="selectChip(this)">Temuco</div>
+                </div>
+            </div>
+
+            <!-- Paso 2: Problema -->
+            <div class="form-group">
+                <label class="form-label">2. Tipo de Problema</label>
+                <div class="chip-group">
+                    <div class="chip" onclick="selectIssue(this, 'devolucion')">Devolución</div>
+                    <div class="chip" onclick="selectIssue(this, 'diferencia')">Diferencia de bultos</div>
+                    <div class="chip" onclick="selectIssue(this, 'incompleto')">Incompleto</div>
+                    <div class="chip" onclick="selectIssue(this, 'etiqueta')">Etiqueta deteriorada</div>
+                </div>
+
+                <!-- Se muestra mágicamente solo si eligen Diferencia -->
+                <div class="qty-selector" id="qtySelector">
+                    <div class="qty-row">
+                        <span>Manifestaba:</span>
+                        <div class="qty-controls">
+                            <button class="qty-btn" onclick="changeQty('mani', -1)">-</button>
+                            <span class="qty-value" id="mani-val">1</span>
+                            <button class="qty-btn" onclick="changeQty('mani', 1)">+</button>
+                        </div>
+                    </div>
+                    <div class="qty-row">
+                        <span>Llegaron:</span>
+                        <div class="qty-controls">
+                            <button class="qty-btn" onclick="changeQty('llego', -1)">-</button>
+                            <span class="qty-value" id="llego-val">2</span>
+                            <button class="qty-btn" onclick="changeQty('llego', 1)">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Paso 3: Foto -->
+            <div class="form-group">
+                <label class="form-label">3. Evidencia</label>
+                <!-- accept="image/*" capture="environment" abre la cámara directamente en el celular -->
+                <label class="camera-btn">
+                    <input type="file" id="photoInput" accept="image/*" capture="environment" style="display: none;">
+                    <div class="camera-icon">📷</div>
+                    <span id="photoLabel">Tomar Fotografía</span>
+                </label>
+            </div>
+
+            <button class="btn-submit" onclick="submitForm()">Registrar y enviar por WhatsApp</button>
+        </div>
+    </div>
+
+    <!-- Cargar la lógica de la base de datos -->
+    <script src="app.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js')
+          .then(() => console.log('Service Worker registrado'))
+          .catch(err => console.log('Error en Service Worker', err));
+      }
+    </script>
+</body>
+</html>
