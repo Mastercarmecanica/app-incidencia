@@ -44,6 +44,20 @@ function saveSettings() {
     alert('Configuración guardada correctamente.');
 }
 
+function forceUpdate() {
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            for(let registration of registrations) {
+                registration.unregister();
+            }
+            alert('Caché borrada exitosamente. La aplicación se reiniciará para aplicar los últimos cambios.');
+            window.location.reload(true);
+        });
+    } else {
+        window.location.reload(true);
+    }
+}
+
 // 2. Funciones de Interfaz
 function openForm() {
     document.getElementById('formModal').classList.add('active');
