@@ -47,6 +47,8 @@ function saveSettings() {
 // 2. Funciones de Interfaz
 function openForm() {
     document.getElementById('formModal').classList.add('active');
+    // Limpiar formulario
+    document.getElementById('clientInput').value = "";
     // Limpiar IA
     document.getElementById('aiVerificationGroup').style.display = 'none';
     document.getElementById('aiSummary').style.display = 'none';
@@ -149,9 +151,8 @@ function compressAndEncodeImage(file) {
 
 // Llamada a la API REST de Gemini
 async function analyzeWithGemini(base64Image) {
+    let clientName = document.getElementById('clientInput').value.trim() || 'el cliente';
     let groups = document.querySelectorAll('.form-group');
-    let activeClient = groups[0].querySelector('.chip.active');
-    let clientName = activeClient ? activeClient.innerText : 'el cliente';
     
     let activeIssue = groups[1].querySelector('.chip.active');
     let issueName = activeIssue ? activeIssue.innerText : '';
@@ -191,11 +192,9 @@ async function analyzeWithGemini(base64Image) {
 
 // 3. Guardar Incidencia Realmente
 function submitForm() {
+    let clientName = document.getElementById('clientInput').value.trim() || '[Sin Cliente]';
     let groups = document.querySelectorAll('.form-group');
     
-    let activeClient = groups[0].querySelector('.chip.active');
-    let clientName = activeClient ? activeClient.innerText : '[Sin Cliente]';
-
     let activeIssue = groups[1].querySelector('.chip.active');
     let issueName = activeIssue ? activeIssue.innerText : '[Sin Problema]';
 

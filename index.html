@@ -37,12 +37,93 @@
             <!-- Paso 1: Cliente -->
             <div class="form-group">
                 <label class="form-label">1. Seleccionar Cliente</label>
-                <div class="chip-group">
-                    <div class="chip" onclick="selectChip(this)">MegaLux</div>
-                    <div class="chip" onclick="selectChip(this)">Pharma</div>
-                    <div class="chip" onclick="selectChip(this)">Abbott</div>
-                    <div class="chip" onclick="selectChip(this)">Temuco</div>
-                </div>
+                <input type="text" id="clientInput" list="clientesList" class="text-input" placeholder="Escribe o selecciona un cliente..." style="margin-top: 0;">
+                <datalist id="clientesList">
+                    <option value="NOVOFARMA SERVICE S.A."></option>
+                    <option value="DHL SUPPLY CHAIN CHILE S.A"></option>
+                    <option value="SAMSUNG ELECTRONICS CHILE LTDA."></option>
+                    <option value="SAMSUNG ELECTRONICS CHILE LTDA. BQHS"></option>
+                    <option value="ARENYSMED"></option>
+                    <option value="BIOMEDICAL DISTRIBUTION CHILE LTDA."></option>
+                    <option value="COMERCIAL HOSER SIROMAX"></option>
+                    <option value="ENDOPARTS EQUIPOS MEDICOS SPA"></option>
+                    <option value="ITF-LABOMED FARMACEUTICA LTDA"></option>
+                    <option value="LABORATORIO LIVIO BARNAFI S.A."></option>
+                    <option value="MANOHAY CHILE SPA"></option>
+                    <option value="PHILIP MORRIS CHILE COMERCIALIZADORA LTDA."></option>
+                    <option value="SWAROVSKI CHILE LTDA."></option>
+                    <option value="TAWA EST S.A."></option>
+                    <option value="TRANSBANK"></option>
+                    <option value="WINKEL LTDA"></option>
+                    <option value="ZURICH CHILE SEGUROS DE VIDA S.A"></option>
+                    <option value="CONQUEXPRESS"></option>
+                    <option value="TOP BRANDS S.A."></option>
+                    <option value="FARMACEUTICA RECCIUS SPA"></option>
+                    <option value="INSUMOS DE ESTETICA MEDIC-DENT SPA"></option>
+                    <option value="LE VICE SPA"></option>
+                    <option value="BOMBONES VARSOVIENNE S.A"></option>
+                    <option value="BOZZO CHOCOLATES S.A."></option>
+                    <option value="TH MEDICAL - TOPOX"></option>
+                    <option value="SOCIEDAD COMERCIALIZADORA DE INSUMOS MEDICOS CLP S.A."></option>
+                    <option value="MOULIE SPA"></option>
+                    <option value="SOC. DE MANUFAC. DE EQUIPOS DENTALES LTDA.(ENVISTACO)"></option>
+                    <option value="GRUPO BIOS S.A."></option>
+                    <option value="COMERCIALIZADORA TERUMO CHILE"></option>
+                    <option value="FRESENIUS KABI CHILE LTDA. (ID: 2267)"></option>
+                    <option value="ANOVO ANDES S.A. (CEVA LOGISTICS)"></option>
+                    <option value="IBM CHILE S.A.C"></option>
+                    <option value="CIBERNOS"></option>
+                    <option value="MT LOGISTICA SPA (TASA)"></option>
+                    <option value="FESTINA CHILE LTDA."></option>
+                    <option value="SONY LATIN AMERICA INC., Suc. CHILE"></option>
+                    <option value="RAMIREZ Y SANCHEZ"></option>
+                    <option value="UPS SCS TRANSPORTES CHILE LTDA."></option>
+                    <option value="ARTHREX CHILE SPA"></option>
+                    <option value="ARLAB"></option>
+                    <option value="BOMI DE CHILE SPA"></option>
+                    <option value="BIOMET CHILE S.A."></option>
+                    <option value="BLUNDING"></option>
+                    <option value="CLINICAL MARKET"></option>
+                    <option value="INTEGRATED HEALTH SOLUTIONS CHILE S.A."></option>
+                    <option value="MEDTRONIC"></option>
+                    <option value="ABBOTT LABORATORIES DE CHILE LTDA."></option>
+                    <option value="ARQUIMED LTDA"></option>
+                    <option value="FLAMA CHILE S.A."></option>
+                    <option value="GENEXPRESS"></option>
+                    <option value="GRIFOLS CHILE S.A."></option>
+                    <option value="LABIN CHILE S.A. (WIENER LAB)"></option>
+                    <option value="LABORATORIO SAVAL S.A."></option>
+                    <option value="LIFE TECHNOLOGIES CHILE SPA (thermofisher)"></option>
+                    <option value="MEGALABS (L CHILE) SPA"></option>
+                    <option value="WORLD COURIER CHILE LTDA. (ID: 2264)"></option>
+                    <option value="GUERBET"></option>
+                    <option value="INDUSTRIA OPTICA RODENSTOCK CHILE S.A."></option>
+                    <option value="INGRAM MICRO CHILE S.A."></option>
+                    <option value="INTCOMEX S.A"></option>
+                    <option value="MEGALUX (CHILE) S.A."></option>
+                    <option value="OPTICAS GMO CHILE S.A"></option>
+                    <option value="OPTICAS ROTTER Y KRAUSS LTDA"></option>
+                    <option value="CIRUMED"></option>
+                    <option value="PROMEDON CHILE S.A."></option>
+                    <option value="SOCIEDAD COMERCIAL FERNANDEZ Y ASOCIADOS (OPTILAND)"></option>
+                    <option value="ST COMPUTACION S.A."></option>
+                    <option value="XEROX DE CHILE S.A"></option>
+                    <option value="LOGYTECH CHILE"></option>
+                    <option value="A3 COMUNICACIONES"></option>
+                    <option value="BIOSONDA S.A."></option>
+                    <option value="CHOCOLATES DEL MUNDO S.A."></option>
+                    <option value="COASIN CHILE S.A."></option>
+                    <option value="GE HEALTHCARE INTERNATIONAL LLCC AGENCIA EN CHILE"></option>
+                    <option value="IMPLANTCAST CORPORATION SPA"></option>
+                    <option value="IMPORTADORA E INVERSIONES PROLAB LTDA."></option>
+                    <option value="NET NOW TECNOLOGIA COMPUTACION S.A."></option>
+                    <option value="OFTOMED S.A."></option>
+                    <option value="SEVEN PHARMA CHILE SPA"></option>
+                    <option value="VIDEOCORP S.A."></option>
+                    <option value="INVERSIONES PERL LOGISTICS SA ZONA SUR"></option>
+                    <option value="INVERSIONES PERL LOGISTICS ISDIN B2C"></option>
+                    <option value="INVERSIONES PERL LOGISTICS SA ZONA NORTE, V REGION Y SANTIAGO"></option>
+                </datalist>
             </div>
 
             <!-- Paso 2: Problema -->
