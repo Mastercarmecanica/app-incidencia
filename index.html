@@ -172,7 +172,7 @@
                     <div class="chip" onclick="selectIssue(this, 'etiqueta')">Etiqueta deteriorada</div>
                 </div>
 
-                <!-- Se muestra mágicamente solo si eligen Diferencia -->
+                <!-- Se muestra solo si eligen Diferencia -->
                 <div class="qty-selector" id="qtySelector">
                     <div class="qty-row">
                         <span>Manifestaba:</span>
@@ -190,6 +190,42 @@
                             <button class="qty-btn" onclick="changeQty('llego', 1)">+</button>
                         </div>
                     </div>
+                </div>
+
+                <!-- Agencia de origen (para diferencia/caja/etiqueta) -->
+                <div id="agenciaPasoGroup" style="display:none; margin-top: 16px;">
+                    <label class="form-label" style="margin-bottom: 8px;">Agencia de origen</label>
+                    <input type="text" id="agenciaPasoInput" list="agenciasPasoList" class="text-input" placeholder="Selecciona la agencia..." style="margin-top: 0;">
+                    <datalist id="agenciasPasoList">
+                        <option value="Los Ángeles"></option>
+                        <option value="Castro"></option>
+                        <option value="Ancud"></option>
+                        <option value="Puerto Montt"></option>
+                        <option value="Temuco"></option>
+                        <option value="Osorno"></option>
+                        <option value="Valdivia"></option>
+                        <option value="Linares"></option>
+                        <option value="Curicó"></option>
+                        <option value="Talca"></option>
+                        <option value="Chillán"></option>
+                        <option value="Concepción"></option>
+                        <option value="Copiapó"></option>
+                        <option value="La Serena - Francisco Alcaide"></option>
+                        <option value="La Serena - Jose Ibacache"></option>
+                        <option value="Los Vilos"></option>
+                        <option value="Ovalle"></option>
+                        <option value="Vallenar"></option>
+                        <option value="Punta Arenas"></option>
+                        <option value="Calama"></option>
+                        <option value="Coyhaique"></option>
+                        <option value="Arica"></option>
+                        <option value="Iquique"></option>
+                        <option value="Antofagasta"></option>
+                        <option value="Valparaíso"></option>
+                        <option value="Los Andes"></option>
+                        <option value="Viña del Mar"></option>
+                        <option value="Rancagua"></option>
+                    </datalist>
                 </div>
             </div>
 

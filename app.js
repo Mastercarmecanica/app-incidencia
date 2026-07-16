@@ -64,6 +64,14 @@ function openForm() {
     // Limpiar formulario
     document.getElementById('clientInput').value = "";
     document.getElementById('agenciaInput').value = "";
+    document.getElementById('agenciaPasoInput').value = "";
+    // Resetear visibilidad de grupos
+    document.getElementById('clienteGroup').style.display = 'block';
+    document.getElementById('agenciaGroup').style.display = 'none';
+    document.getElementById('agenciaPasoGroup').style.display = 'none';
+    document.getElementById('qtySelector').style.display = 'none';
+    // Limpiar chips
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
     // Limpiar IA
     document.getElementById('aiVerificationGroup').style.display = 'none';
     document.getElementById('aiSummary').style.display = 'none';
@@ -91,13 +99,23 @@ function selectIssue(element, type) {
     
     let clienteGroup = document.getElementById('clienteGroup');
     let agenciaGroup = document.getElementById('agenciaGroup');
+    let agenciaPasoGroup = document.getElementById('agenciaPasoGroup');
     
     if (type === 'etiqueta') {
+        // Etiqueta: solo agencia (el bloque de arriba)
         clienteGroup.style.display = 'none';
         agenciaGroup.style.display = 'block';
-    } else {
+        agenciaPasoGroup.style.display = 'none';
+    } else if (type === 'diferencia' || type === 'normal') {
+        // Diferencia/Caja: cliente + agencia de origen (el nuevo bloque dentro del paso 2)
         clienteGroup.style.display = 'block';
         agenciaGroup.style.display = 'none';
+        agenciaPasoGroup.style.display = 'block';
+    } else {
+        // Devolución: solo cliente
+        clienteGroup.style.display = 'block';
+        agenciaGroup.style.display = 'none';
+        agenciaPasoGroup.style.display = 'none';
     }
 }
 
@@ -198,7 +216,7 @@ async function analyzeWithGemini(base64Image) {
         }]
     };
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -231,6 +249,8 @@ function submitForm() {
         clientName = document.getElementById('agenciaInput').value.trim() || '[Sin Agencia]';
     }
 
+    let agenciaPaso = document.getElementById('agenciaPasoInput').value.trim();
+
     let aiSummaryVal = document.getElementById('aiSummary').value.trim();
     // Si el resultado de la IA es un error, lo ignoramos completamente
     if (aiSummaryVal.startsWith('Error en IA:')) {
@@ -247,9 +267,17 @@ function submitForm() {
     if (issueName === 'Diferencia de bultos') {
         let mani = document.getElementById('mani-val').innerText;
         let llego = document.getElementById('llego-val').innerText;
-        details = `agente manifestó ${mani} pero llegaron ${llego}, ¿cómo procedemos con esta incidencia?${aiText}`;
+        let agenciaTexto = agenciaPaso ? ` de la agencia de ${agenciaPaso}` : '';
+        details = `agente manifestó ${mani} pero llegaron ${llego}${agenciaTexto}, ¿cómo procedemos con esta incidencia?${aiText}`;
+    } else if (issueName === 'Caja o saco abierto') {
+        let agenciaTexto = agenciaPaso ? agenciaPaso : '[Sin Agencia]';
+        if (clientName && clientName !== '[Sin Cliente]') {
+            details = `bulto de ${clientName} llegó abierto de la agencia de ${agenciaTexto}, ¿cómo procedemos con esta incidencia?`;
+        } else {
+            details = `saco de ${agenciaTexto} llegó abierto, se hará la cuadratura y se les avisará alguna novedad.`;
+        }
     } else if (issueName === 'Etiqueta deteriorada') {
-        details = `agencia de ${clientName} envío etiqueta con evidente deterioro, siendo imposible leerla con la pistola de código de barras.`;
+        details = `agencia de ${clientName} envió etiqueta con evidente deterioro, siendo imposible leerla con la pistola de código de barras.`;
     } else if (issueName !== '[Sin Problema]') {
         details = `\n${issueName}${aiText}`;
     }
@@ -276,7 +304,7 @@ function submitForm() {
         closeForm();
         loadDashboard(); 
         
-        // El texto rápido para el WhatsApp de ahora
+        // El texto rápido para el WhatsApp
         let mensaje = '';
         if (aiSummaryVal && issueName === 'Devolución') {
             mensaje = `${aiSummaryVal}`;
@@ -284,10 +312,9 @@ function submitForm() {
             mensaje = `¿Cómo se procede con este bulto de ${clientName}?`;
         } else if (issueName === 'Etiqueta deteriorada') {
             mensaje = `Agencia: ${clientName}\nIncidencia: ${details}`;
-        } else if (issueName === 'Diferencia de bultos') {
-            mensaje = `Cliente: ${clientName}\nIncidencia: ${details}`;
         } else {
-            mensaje = `Cliente: ${clientName}\nIncidencia: ${details}`;
+            // Diferencia de bultos, Caja o saco abierto
+            mensaje = details;
         }
         
         // Usar Web Share API si está disponible y hay foto (para poder adjuntar la imagen)
