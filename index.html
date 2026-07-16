@@ -35,7 +35,7 @@
         <div class="form-body">
             
             <!-- Paso 1: Cliente -->
-            <div class="form-group">
+            <div class="form-group" id="clienteGroup">
                 <label class="form-label">1. Seleccionar Cliente</label>
                 <input type="text" id="clientInput" list="clientesList" class="text-input" placeholder="Escribe o selecciona un cliente..." style="margin-top: 0;">
                 <datalist id="clientesList">
@@ -126,13 +126,49 @@
                 </datalist>
             </div>
 
+            <!-- Paso 1.5: Agencia (Oculto por defecto) -->
+            <div class="form-group" id="agenciaGroup" style="display: none;">
+                <label class="form-label">1. Seleccionar Agencia</label>
+                <input type="text" id="agenciaInput" list="agenciasList" class="text-input" placeholder="Escribe o selecciona una agencia..." style="margin-top: 0;">
+                <datalist id="agenciasList">
+                    <option value="Los Ángeles"></option>
+                    <option value="Castro"></option>
+                    <option value="Ancud"></option>
+                    <option value="Puerto Montt"></option>
+                    <option value="Temuco"></option>
+                    <option value="Osorno"></option>
+                    <option value="Valdivia"></option>
+                    <option value="Linares"></option>
+                    <option value="Curicó"></option>
+                    <option value="Talca"></option>
+                    <option value="Chillán"></option>
+                    <option value="Concepción"></option>
+                    <option value="Copiapó"></option>
+                    <option value="La Serena - Francisco Alcaide"></option>
+                    <option value="La Serena - Jose Ibacache"></option>
+                    <option value="Los Vilos"></option>
+                    <option value="Ovalle"></option>
+                    <option value="Vallenar"></option>
+                    <option value="Punta Arenas"></option>
+                    <option value="Calama"></option>
+                    <option value="Coyhaique"></option>
+                    <option value="Arica"></option>
+                    <option value="Iquique"></option>
+                    <option value="Antofagasta"></option>
+                    <option value="Valparaíso"></option>
+                    <option value="Los Andes"></option>
+                    <option value="Viña del Mar"></option>
+                    <option value="Rancagua"></option>
+                </datalist>
+            </div>
+
             <!-- Paso 2: Problema -->
             <div class="form-group">
                 <label class="form-label">2. Tipo de Problema</label>
                 <div class="chip-group">
                     <div class="chip" onclick="selectIssue(this, 'devolucion')">Devolución</div>
                     <div class="chip" onclick="selectIssue(this, 'diferencia')">Diferencia de bultos</div>
-                    <div class="chip" onclick="selectIssue(this, 'incompleto')">Incompleto</div>
+                    <div class="chip" onclick="selectIssue(this, 'normal')">Caja o saco abierto</div>
                     <div class="chip" onclick="selectIssue(this, 'etiqueta')">Etiqueta deteriorada</div>
                 </div>
 

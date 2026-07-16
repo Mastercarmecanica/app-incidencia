@@ -49,6 +49,7 @@ function openForm() {
     document.getElementById('formModal').classList.add('active');
     // Limpiar formulario
     document.getElementById('clientInput').value = "";
+    document.getElementById('agenciaInput').value = "";
     // Limpiar IA
     document.getElementById('aiVerificationGroup').style.display = 'none';
     document.getElementById('aiSummary').style.display = 'none';
@@ -73,6 +74,17 @@ function selectIssue(element, type) {
     selectChip(element);
     let qtySelector = document.getElementById('qtySelector');
     qtySelector.style.display = (type === 'diferencia') ? 'flex' : 'none';
+    
+    let clienteGroup = document.getElementById('clienteGroup');
+    let agenciaGroup = document.getElementById('agenciaGroup');
+    
+    if (type === 'etiqueta') {
+        clienteGroup.style.display = 'none';
+        agenciaGroup.style.display = 'block';
+    } else {
+        clienteGroup.style.display = 'block';
+        agenciaGroup.style.display = 'none';
+    }
 }
 
 function changeQty(id, delta) {
@@ -198,6 +210,11 @@ function submitForm() {
     let activeIssue = groups[1].querySelector('.chip.active');
     let issueName = activeIssue ? activeIssue.innerText : '[Sin Problema]';
 
+    // Si es etiqueta deteriorada, usamos la agencia en lugar del cliente
+    if (issueName === 'Etiqueta deteriorada') {
+        clientName = document.getElementById('agenciaInput').value.trim() || '[Sin Agencia]';
+    }
+
     let aiSummaryVal = document.getElementById('aiSummary').value.trim();
     let details = '';
     
@@ -206,7 +223,9 @@ function submitForm() {
     } else if (issueName === 'Diferencia de bultos') {
         let mani = document.getElementById('mani-val').innerText;
         let llego = document.getElementById('llego-val').innerText;
-        details = `\nManifestaba: ${mani}\nLlegaron: ${llego}`;
+        details = `agente manifestó ${mani} pero llegaron ${llego}, ¿cómo procedemos con esta incidencia?`;
+    } else if (issueName === 'Etiqueta deteriorada') {
+        details = `\nEl agente envió mal la etiqueta.`;
     } else if (issueName !== '[Sin Problema]') {
         details = `\n${issueName}`;
     }
@@ -236,11 +255,15 @@ function submitForm() {
         // El texto rápido para el WhatsApp de ahora
         let mensaje = '';
         if (aiSummaryVal && issueName === 'Devolución') {
-            mensaje = `${aiSummaryVal}\n\nAdjunto fotografía.`;
+            mensaje = `${aiSummaryVal}`;
         } else if (issueName === 'Devolución') {
-            mensaje = `¿Cómo se procede con este bulto de ${clientName}?\n\nAdjunto fotografía.`;
+            mensaje = `¿Cómo se procede con este bulto de ${clientName}?`;
+        } else if (issueName === 'Diferencia de bultos') {
+            mensaje = `Cliente: ${clientName}\nIncidencia: ${details}`;
+        } else if (issueName === 'Etiqueta deteriorada') {
+            mensaje = `Agencia: ${clientName}\nIncidencia: Etiqueta deteriorada. ${details}`;
         } else {
-            mensaje = `Cliente: ${clientName}\nIncidencia:${details}\n\nAdjunto fotografía.`;
+            mensaje = `Cliente: ${clientName}\nIncidencia: ${details}`;
         }
         
         // Usar Web Share API si está disponible y hay foto (para poder adjuntar la imagen)
