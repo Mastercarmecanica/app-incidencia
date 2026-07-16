@@ -164,12 +164,11 @@ function compressAndEncodeImage(file) {
 // Llamada a la API REST de Gemini
 async function analyzeWithGemini(base64Image) {
     let clientName = document.getElementById('clientInput').value.trim() || 'el cliente';
-    let groups = document.querySelectorAll('.form-group');
     
-    let activeIssue = groups[1].querySelector('.chip.active');
+    let activeIssue = document.querySelector('.chip-group .chip.active');
     let issueName = activeIssue ? activeIssue.innerText : '';
 
-    let prompt = `Extrae el número de OT, OD o Id Referencia de esta etiqueta. Escribe ÚNICAMENTE este mensaje: "¿Cómo procedemos con este bulto de ${clientName} con OT [NÚMERO EXTRAÍDO]?". Si no logras leer el número, escribe "No se pudo leer el número de OT en la foto."`;
+    let prompt = `Extrae el número de OT, OD o Id Referencia de esta etiqueta. Escribe ÚNICAMENTE este mensaje: "¿Cómo procedemos con este bulto de ${clientName} con OT [NÚMERO EXTRAÍDO]?". Si no logras leer el número, escribe "¿Cómo procedemos con este bulto de ${clientName}?" sin agregar nada más.`;
     
     // Si no es devolución, ajustamos un poco el prompt
     if (issueName !== 'Devolución') {
@@ -204,11 +203,14 @@ async function analyzeWithGemini(base64Image) {
 
 // 3. Guardar Incidencia Realmente
 function submitForm() {
-    let clientName = document.getElementById('clientInput').value.trim() || '[Sin Cliente]';
-    let groups = document.querySelectorAll('.form-group');
+    let activeIssue = document.querySelector('.chip-group .chip.active');
+    if (!activeIssue) {
+        alert("Por favor, selecciona un Tipo de Problema (Paso 2) antes de registrar.");
+        return;
+    }
     
-    let activeIssue = groups[1].querySelector('.chip.active');
-    let issueName = activeIssue ? activeIssue.innerText : '[Sin Problema]';
+    let clientName = document.getElementById('clientInput').value.trim() || '[Sin Cliente]';
+    let issueName = activeIssue.innerText;
 
     // Si es etiqueta deteriorada, usamos la agencia en lugar del cliente
     if (issueName === 'Etiqueta deteriorada') {
@@ -218,16 +220,20 @@ function submitForm() {
     let aiSummaryVal = document.getElementById('aiSummary').value.trim();
     let details = '';
     
-    if (aiSummaryVal && issueName !== 'Devolución') {
-        details = `\nIA (OT): ${aiSummaryVal}`;
-    } else if (issueName === 'Diferencia de bultos') {
+    // Si la IA respondió algo y NO es devolución ni etiqueta deteriorada, lo guardamos.
+    let aiText = '';
+    if (aiSummaryVal && issueName !== 'Devolución' && issueName !== 'Etiqueta deteriorada') {
+        aiText = `\nIA (OT): ${aiSummaryVal}`;
+    }
+
+    if (issueName === 'Diferencia de bultos') {
         let mani = document.getElementById('mani-val').innerText;
         let llego = document.getElementById('llego-val').innerText;
-        details = `agente manifestó ${mani} pero llegaron ${llego}, ¿cómo procedemos con esta incidencia?`;
+        details = `agente manifestó ${mani} pero llegaron ${llego}, ¿cómo procedemos con esta incidencia?${aiText}`;
     } else if (issueName === 'Etiqueta deteriorada') {
-        details = `\nEl agente envió mal la etiqueta.`;
+        details = `agencia de ${clientName} envío etiqueta con evidente deterioro, siendo imposible leerla con la pistola de código de barras.`;
     } else if (issueName !== '[Sin Problema]') {
-        details = `\n${issueName}`;
+        details = `\n${issueName}${aiText}`;
     }
 
     // Extraer archivo real de foto
@@ -258,10 +264,10 @@ function submitForm() {
             mensaje = `${aiSummaryVal}`;
         } else if (issueName === 'Devolución') {
             mensaje = `¿Cómo se procede con este bulto de ${clientName}?`;
+        } else if (issueName === 'Etiqueta deteriorada') {
+            mensaje = `Agencia: ${clientName}\nIncidencia: ${details}`;
         } else if (issueName === 'Diferencia de bultos') {
             mensaje = `Cliente: ${clientName}\nIncidencia: ${details}`;
-        } else if (issueName === 'Etiqueta deteriorada') {
-            mensaje = `Agencia: ${clientName}\nIncidencia: Etiqueta deteriorada. ${details}`;
         } else {
             mensaje = `Cliente: ${clientName}\nIncidencia: ${details}`;
         }
