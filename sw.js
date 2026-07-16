@@ -1,4 +1,4 @@
-const CACHE_NAME = 'incidencias-v2';
+const CACHE_NAME = 'incidencias-v3';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

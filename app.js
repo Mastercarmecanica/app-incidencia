@@ -229,7 +229,7 @@ function submitForm() {
     const store = tx.objectStore(STORE_NAME);
     store.add(incidencia);
     
-    tx.oncomplete = () => {
+    tx.oncomplete = async () => {
         closeForm();
         loadDashboard(); 
         
@@ -242,8 +242,33 @@ function submitForm() {
         } else {
             mensaje = `Cliente: ${clientName}\nIncidencia:${details}\n\nAdjunto fotografía.`;
         }
-        let waLink = `whatsapp://send?text=${encodeURIComponent(mensaje)}`;
-        window.location.href = waLink;
+        
+        // Usar Web Share API si está disponible y hay foto (para poder adjuntar la imagen)
+        if (navigator.share && photoFile) {
+            try {
+                const ext = photoFile.name ? photoFile.name.split('.').pop() : 'jpg';
+                const renamedFile = new File([photoFile], `Incidencia_${clientName.replace(/ /g, '_')}.${ext}`, { type: photoFile.type });
+                
+                let shareData = {
+                    title: 'Nueva Incidencia',
+                    text: mensaje
+                };
+                
+                if (navigator.canShare && navigator.canShare({ files: [renamedFile] })) {
+                    shareData.files = [renamedFile];
+                }
+                
+                await navigator.share(shareData);
+            } catch (err) {
+                console.log("Error al compartir foto nativa", err);
+                // Fallback a solo texto si el usuario cancela o falla
+                window.location.href = `whatsapp://send?text=${encodeURIComponent(mensaje)}`;
+            }
+        } else {
+            // Fallback (solo texto directo a WhatsApp)
+            let waLink = `whatsapp://send?text=${encodeURIComponent(mensaje)}`;
+            window.location.href = waLink;
+        }
     };
 }
 
