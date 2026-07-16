@@ -25,9 +25,33 @@ function initDB() {
     });
 }
 
+// 1.5. Configuración IA
+let geminiApiKey = localStorage.getItem('geminiApiKey') || '';
+
+function openSettings() {
+    document.getElementById('apiKeyInput').value = geminiApiKey;
+    document.getElementById('settingsModal').classList.add('active');
+}
+
+function closeSettings() {
+    document.getElementById('settingsModal').classList.remove('active');
+}
+
+function saveSettings() {
+    geminiApiKey = document.getElementById('apiKeyInput').value.trim();
+    localStorage.setItem('geminiApiKey', geminiApiKey);
+    closeSettings();
+    alert('Configuración guardada correctamente.');
+}
+
 // 2. Funciones de Interfaz
 function openForm() {
     document.getElementById('formModal').classList.add('active');
+    // Limpiar IA
+    document.getElementById('aiVerificationGroup').style.display = 'none';
+    document.getElementById('aiSummary').style.display = 'none';
+    document.getElementById('aiSummary').value = '';
+    document.getElementById('aiLoading').style.display = 'none';
     // Reiniciar botón de foto
     document.getElementById('photoInput').value = "";
     document.getElementById('photoLabel').innerText = "Tomar Fotografía";
@@ -56,12 +80,114 @@ function changeQty(id, delta) {
     el.innerText = val;
 }
 
-// Escuchar captura de cámara
-document.getElementById('photoInput').addEventListener('change', function(e) {
+// Escuchar captura de cámara y activar IA
+document.getElementById('photoInput').addEventListener('change', async function(e) {
     if (e.target.files.length > 0) {
         document.getElementById('photoLabel').innerText = "¡Fotografía Capturada! 📸";
+        
+        if (geminiApiKey) {
+            document.getElementById('aiVerificationGroup').style.display = 'block';
+            document.getElementById('aiLoading').style.display = 'block';
+            document.getElementById('aiSummary').style.display = 'none';
+            
+            try {
+                // Comprimir imagen
+                const file = e.target.files[0];
+                const base64Image = await compressAndEncodeImage(file);
+                
+                // Llamar a Gemini
+                const result = await analyzeWithGemini(base64Image);
+                
+                document.getElementById('aiLoading').style.display = 'none';
+                document.getElementById('aiSummary').style.display = 'block';
+                document.getElementById('aiSummary').value = result;
+            } catch (err) {
+                document.getElementById('aiLoading').style.display = 'none';
+                document.getElementById('aiSummary').style.display = 'block';
+                document.getElementById('aiSummary').value = "Error en IA: " + err.message;
+            }
+        }
     }
 });
+
+// Función para comprimir imagen (max 800px)
+function compressAndEncodeImage(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = event => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 800;
+                const MAX_HEIGHT = 800;
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height && width > MAX_WIDTH) {
+                    height *= MAX_WIDTH / width;
+                    width = MAX_WIDTH;
+                } else if (height > MAX_HEIGHT) {
+                    width *= MAX_HEIGHT / height;
+                    height = MAX_HEIGHT;
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                // Retornar solo el string base64 sin el prefijo
+                resolve(dataUrl.split(',')[1]);
+            };
+            img.onerror = reject;
+        };
+        reader.onerror = reject;
+    });
+}
+
+// Llamada a la API REST de Gemini
+async function analyzeWithGemini(base64Image) {
+    let groups = document.querySelectorAll('.form-group');
+    let activeClient = groups[0].querySelector('.chip.active');
+    let clientName = activeClient ? activeClient.innerText : 'el cliente';
+    
+    let activeIssue = groups[1].querySelector('.chip.active');
+    let issueName = activeIssue ? activeIssue.innerText : '';
+
+    let prompt = `Extrae el número de OT, OD o Id Referencia de esta etiqueta. Escribe ÚNICAMENTE este mensaje: "¿Cómo procedemos con este bulto de ${clientName} con OT [NÚMERO EXTRAÍDO]?". Si no logras leer el número, escribe "No se pudo leer el número de OT en la foto."`;
+    
+    // Si no es devolución, ajustamos un poco el prompt
+    if (issueName !== 'Devolución') {
+        prompt = `Extrae el número de OT, OD o Id Referencia de esta etiqueta. Escribe el número extraído o "No detectado".`;
+    }
+
+    const payload = {
+        contents: [{
+            parts: [
+                { text: prompt },
+                { inline_data: { mime_type: "image/jpeg", data: base64Image } }
+            ]
+        }]
+    };
+
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+        throw new Error('No se pudo conectar con Gemini. Revisa tu API Key.');
+    }
+
+    const data = await response.json();
+    if (data.candidates && data.candidates[0].content.parts[0].text) {
+        return data.candidates[0].content.parts[0].text.trim();
+    }
+    return "Resultado vacío de la IA.";
+}
 
 // 3. Guardar Incidencia Realmente
 function submitForm() {
@@ -73,8 +199,12 @@ function submitForm() {
     let activeIssue = groups[1].querySelector('.chip.active');
     let issueName = activeIssue ? activeIssue.innerText : '[Sin Problema]';
 
+    let aiSummaryVal = document.getElementById('aiSummary').value.trim();
     let details = '';
-    if (issueName === 'Diferencia de bultos') {
+    
+    if (aiSummaryVal && issueName !== 'Devolución') {
+        details = `\nIA (OT): ${aiSummaryVal}`;
+    } else if (issueName === 'Diferencia de bultos') {
         let mani = document.getElementById('mani-val').innerText;
         let llego = document.getElementById('llego-val').innerText;
         details = `\nManifestaba: ${mani}\nLlegaron: ${llego}`;
@@ -106,7 +236,9 @@ function submitForm() {
         
         // El texto rápido para el WhatsApp de ahora
         let mensaje = '';
-        if (issueName === 'Devolución') {
+        if (aiSummaryVal && issueName === 'Devolución') {
+            mensaje = `${aiSummaryVal}\n\nAdjunto fotografía.`;
+        } else if (issueName === 'Devolución') {
             mensaje = `¿Cómo se procede con este bulto de ${clientName}?\n\nAdjunto fotografía.`;
         } else {
             mensaje = `Cliente: ${clientName}\nIncidencia:${details}\n\nAdjunto fotografía.`;

@@ -13,7 +13,10 @@
 
     <header>
         <h1>Incidencias</h1>
-        <button class="btn-report" onclick="generateEmail()">Finalizar Jornada</button>
+        <div style="display: flex; gap: 10px;">
+            <button class="btn-icon" onclick="openSettings()" style="background: transparent; border: none; font-size: 1.5rem; color: white;">⚙️</button>
+            <button class="btn-report" onclick="generateEmail()">Finalizar Jornada</button>
+        </div>
     </header>
 
     <!-- El tablero ahora está vacío. app.js se encarga de rellenarlo leyendo la base de datos -->
@@ -84,7 +87,32 @@
                 </label>
             </div>
 
+            <!-- Verificación IA -->
+            <div class="form-group" id="aiVerificationGroup" style="display: none;">
+                <label class="form-label">🤖 Resultado Inteligencia Artificial</label>
+                <div id="aiLoading" style="display: none; color: #60a5fa; font-size: 0.9rem; margin-bottom: 8px; text-align: center;">
+                    Analizando imagen... ⏳
+                </div>
+                <textarea id="aiSummary" class="text-input" rows="3" placeholder="El resultado aparecerá aquí..." style="display: none;"></textarea>
+            </div>
+
             <button class="btn-submit" onclick="submitForm()">Registrar y enviar por WhatsApp</button>
+        </div>
+    </div>
+
+    <!-- SETTINGS MODAL -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-header">
+            <button class="back-btn" onclick="closeSettings()">←</button>
+            <h2>Configuración IA</h2>
+        </div>
+        <div class="form-body">
+            <div class="form-group">
+                <label class="form-label">API Key de Gemini</label>
+                <input type="password" id="apiKeyInput" placeholder="Pega tu clave aquí..." class="text-input">
+                <p style="font-size: 0.8rem; color: #a0aec0; margin-top: 8px;">Se guarda de forma segura solo en este dispositivo.</p>
+            </div>
+            <button class="btn-submit" onclick="saveSettings()">Guardar Configuración</button>
         </div>
     </div>
 

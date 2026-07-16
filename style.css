@@ -353,4 +353,20 @@
             box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
             cursor: pointer;
         }
-    </style>
+
+        .text-input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: rgba(0,0,0,0.2);
+            color: var(--text-main);
+            font-size: 1rem;
+            margin-top: 8px;
+            resize: vertical;
+        }
+        
+        .text-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
