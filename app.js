@@ -45,15 +45,26 @@ function saveSettings() {
 }
 
 function forceUpdate() {
+    // 1. Borrar TODAS las cachés de archivos guardados
+    if ('caches' in window) {
+        caches.keys().then(function(names) {
+            for (let name of names) {
+                caches.delete(name);
+            }
+        });
+    }
+    
+    // 2. Desregistrar el Service Worker viejo
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistrations().then(function(registrations) {
-            for(let registration of registrations) {
+            for (let registration of registrations) {
                 registration.unregister();
             }
-            alert('Caché borrada exitosamente. La aplicación se reiniciará para aplicar los últimos cambios.');
+            alert('Caché borrada exitosamente. La aplicación se reiniciará.');
             window.location.reload(true);
         });
     } else {
+        alert('Caché borrada exitosamente. La aplicación se reiniciará.');
         window.location.reload(true);
     }
 }
@@ -282,9 +293,17 @@ function submitForm() {
         details = `\n${issueName}${aiText}`;
     }
 
-    // Extraer archivo real de foto
+    // Extraer archivo real de foto y hacer una copia para compartir
     let photoInput = document.getElementById('photoInput');
     let photoFile = photoInput.files.length > 0 ? photoInput.files[0] : null;
+    let shareFile = null;
+    
+    // Crear una copia del archivo ANTES de guardarlo en la BD
+    if (photoFile) {
+        const blob = photoFile.slice(0, photoFile.size, photoFile.type);
+        const ext = photoFile.name ? photoFile.name.split('.').pop() : 'jpg';
+        shareFile = new File([blob], `Incidencia_${clientName.replace(/ /g, '_')}.${ext}`, { type: photoFile.type });
+    }
 
     let incidencia = {
         client: clientName,
@@ -317,29 +336,23 @@ function submitForm() {
             mensaje = details;
         }
         
-        // Usar Web Share API si está disponible y hay foto (para poder adjuntar la imagen)
-        if (navigator.share && photoFile) {
+        // Usar Web Share API si hay foto copiada (para poder adjuntar la imagen)
+        if (navigator.share && shareFile) {
             try {
-                const ext = photoFile.name ? photoFile.name.split('.').pop() : 'jpg';
-                const renamedFile = new File([photoFile], `Incidencia_${clientName.replace(/ /g, '_')}.${ext}`, { type: photoFile.type });
-                
                 let shareData = {
-                    title: 'Nueva Incidencia',
                     text: mensaje
                 };
                 
-                if (navigator.canShare && navigator.canShare({ files: [renamedFile] })) {
-                    shareData.files = [renamedFile];
+                if (navigator.canShare && navigator.canShare({ files: [shareFile] })) {
+                    shareData.files = [shareFile];
                 }
                 
                 await navigator.share(shareData);
             } catch (err) {
                 console.log("Error al compartir foto nativa", err);
-                // Fallback a solo texto si el usuario cancela o falla
                 window.location.href = `whatsapp://send?text=${encodeURIComponent(mensaje)}`;
             }
         } else {
-            // Fallback (solo texto directo a WhatsApp)
             let waLink = `whatsapp://send?text=${encodeURIComponent(mensaje)}`;
             window.location.href = waLink;
         }
