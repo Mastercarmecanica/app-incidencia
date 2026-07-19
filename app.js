@@ -44,29 +44,25 @@ function saveSettings() {
     alert('Configuración guardada correctamente.');
 }
 
-function forceUpdate() {
+async function forceUpdate() {
     // 1. Borrar TODAS las cachés de archivos guardados
     if ('caches' in window) {
-        caches.keys().then(function(names) {
-            for (let name of names) {
-                caches.delete(name);
-            }
-        });
+        const names = await caches.keys();
+        for (let name of names) {
+            await caches.delete(name);
+        }
     }
     
     // 2. Desregistrar el Service Worker viejo
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(function(registrations) {
-            for (let registration of registrations) {
-                registration.unregister();
-            }
-            alert('Caché borrada exitosamente. La aplicación se reiniciará.');
-            window.location.reload(true);
-        });
-    } else {
-        alert('Caché borrada exitosamente. La aplicación se reiniciará.');
-        window.location.reload(true);
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (let registration of registrations) {
+            await registration.unregister();
+        }
     }
+    
+    alert('Caché borrada exitosamente. La aplicación se reiniciará.');
+    window.location.reload(true);
 }
 
 // 2. Funciones de Interfaz
@@ -177,8 +173,8 @@ function compressAndEncodeImage(file) {
             img.src = event.target.result;
             img.onload = () => {
                 const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 800;
-                const MAX_HEIGHT = 800;
+                const MAX_WIDTH = 1920;
+                const MAX_HEIGHT = 1920;
                 let width = img.width;
                 let height = img.height;
 
@@ -194,7 +190,7 @@ function compressAndEncodeImage(file) {
                 canvas.height = height;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
                 // Retornar solo el string base64 sin el prefijo
                 resolve(dataUrl.split(',')[1]);
             };
