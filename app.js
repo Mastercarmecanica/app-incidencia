@@ -173,8 +173,8 @@ function compressAndEncodeImage(file) {
             img.src = event.target.result;
             img.onload = () => {
                 const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 1920;
-                const MAX_HEIGHT = 1920;
+                const MAX_WIDTH = 1280;
+                const MAX_HEIGHT = 1280;
                 let width = img.width;
                 let height = img.height;
 
@@ -190,7 +190,7 @@ function compressAndEncodeImage(file) {
                 canvas.height = height;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
                 // Retornar solo el string base64 sin el prefijo
                 resolve(dataUrl.split(',')[1]);
             };
@@ -230,7 +230,8 @@ async function analyzeWithGemini(base64Image) {
     });
 
     if (!response.ok) {
-        throw new Error('No se pudo conectar con Gemini. Revisa tu API Key.');
+        const errorText = await response.text();
+        throw new Error(`Error API (${response.status}): ${errorText}`);
     }
 
     const data = await response.json();
