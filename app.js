@@ -113,8 +113,8 @@ function selectIssue(element, type) {
         clienteGroup.style.display = 'none';
         agenciaGroup.style.display = 'block';
         agenciaPasoGroup.style.display = 'none';
-    } else if (type === 'diferencia' || type === 'normal') {
-        // Diferencia/Caja: cliente + agencia de origen (el nuevo bloque dentro del paso 2)
+    } else if (type === 'diferencia' || type === 'normal' || type === 'faltante') {
+        // Diferencia/Caja/Faltante: cliente + agencia de origen (el nuevo bloque dentro del paso 2)
         clienteGroup.style.display = 'block';
         agenciaGroup.style.display = 'none';
         agenciaPasoGroup.style.display = 'block';
@@ -173,8 +173,8 @@ function compressAndEncodeImage(file) {
             img.src = event.target.result;
             img.onload = () => {
                 const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 1280;
-                const MAX_HEIGHT = 1280;
+                const MAX_WIDTH = 960;
+                const MAX_HEIGHT = 960;
                 let width = img.width;
                 let height = img.height;
 
@@ -190,7 +190,7 @@ function compressAndEncodeImage(file) {
                 canvas.height = height;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.80);
                 // Retornar solo el string base64 sin el prefijo
                 resolve(dataUrl.split(',')[1]);
             };
@@ -266,9 +266,9 @@ function submitForm() {
     }
     let details = '';
     
-    // Si la IA respondió algo y NO es devolución ni etiqueta deteriorada, lo guardamos.
+    // Si la IA respondió algo y NO es devolución ni etiqueta deteriorada ni faltante, lo guardamos.
     let aiText = '';
-    if (aiSummaryVal && issueName !== 'Devolución' && issueName !== 'Etiqueta deteriorada') {
+    if (aiSummaryVal && issueName !== 'Devolución' && issueName !== 'Etiqueta deteriorada' && issueName !== 'Faltante') {
         aiText = `\nIA (OT): ${aiSummaryVal}`;
     }
 
@@ -277,6 +277,10 @@ function submitForm() {
         let llego = document.getElementById('llego-val').innerText;
         let agenciaTexto = agenciaPaso ? ` de la agencia de ${agenciaPaso}` : '';
         details = `agente manifestó ${mani} pero llegaron ${llego}${agenciaTexto}, ¿cómo procedemos con esta incidencia?${aiText}`;
+    } else if (issueName === 'Faltante') {
+        let agenciaTexto = agenciaPaso ? agenciaPaso : '[Sin Agente]';
+        let otNumber = aiSummaryVal ? aiSummaryVal : '_____';
+        details = `la orden numero ${otNumber} del cliente ${clientName} me quedo faltante en la cuadratura del agente ${agenciaTexto}`;
     } else if (issueName === 'Caja o saco abierto') {
         let agenciaTexto = agenciaPaso ? agenciaPaso : '[Sin Agencia]';
         if (clientName && clientName !== '[Sin Cliente]') {
@@ -329,7 +333,7 @@ function submitForm() {
         } else if (issueName === 'Etiqueta deteriorada') {
             mensaje = `Agencia: ${clientName}\nIncidencia: ${details}`;
         } else {
-            // Diferencia de bultos, Caja o saco abierto
+            // Diferencia de bultos, Caja o saco abierto, Faltante
             mensaje = details;
         }
         
@@ -470,6 +474,9 @@ async function generateEmail() {
             } catch (err) {
                 console.error("Error al compartir nativo", err);
                 // Fallback si cancela o falla
+                let subject = `Incidencias del día ${today}`;
+                let mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
+                window.location.href = mailtoLink;
             }
         } else {
             // Si lo abre en un navegador viejo, usa el método básico (sin fotos adjuntas auto)
