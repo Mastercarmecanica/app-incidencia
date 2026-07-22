@@ -351,6 +351,7 @@ function submitForm() {
                 await navigator.share(shareData);
             } catch (err) {
                 console.log("Error al compartir foto nativa", err);
+                if (err.name === 'AbortError') return;
                 window.location.href = `whatsapp://send?text=${encodeURIComponent(mensaje)}`;
             }
         } else {
@@ -473,7 +474,8 @@ async function generateEmail() {
                 }
             } catch (err) {
                 console.error("Error al compartir nativo", err);
-                // Fallback si cancela o falla
+                if (err.name === 'AbortError') return;
+                // Fallback si falla por otro motivo
                 let subject = `Incidencias del día ${today}`;
                 let mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
                 window.location.href = mailtoLink;
